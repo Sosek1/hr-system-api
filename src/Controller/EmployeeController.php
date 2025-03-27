@@ -81,4 +81,30 @@ final class EmployeeController extends AbstractController
 
         return new JsonResponse($summary);
     }
+
+    #[Route('/employee/work-summary/monthly', name: 'employee_monthly_work_summary', methods: ['POST'])]
+    public function monthlyWorkSummary(Request $request, EntityManagerInterface $entityManager, WorkSummaryService $workSummaryService, EmployeeValidator $validator): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $month = $data['date'] ?? null;
+        $employeeUuid = $data['employee_id'] ?? null;
+
+        $errors = $validator->validateMonthlyWorkSummaryData($month, $employeeUuid);
+        if (!empty($errors)) {
+            return new JsonResponse(['error' => $errors], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $employee = $entityManager->getRepository(Employee::class)->findOneBy(['uuid' => $employeeUuid]);
+        if (!$employee) {
+            return new JsonResponse(['error' => ['Nie znaleziono pracownika o podanym unikalnym identyfikatorze']], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $summary = $workSummaryService->calculateMonthlyWorkSummary($employee->getId(), $month);
+
+        if (!$summary || empty($summary)) {
+            return new JsonResponse(['message' => 'Brak danych o czasie pracy dla podanego miesiąca'], JsonResponse::HTTP_OK);
+        }
+
+        return new JsonResponse($summary);
+    }
 }

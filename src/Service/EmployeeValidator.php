@@ -55,5 +55,24 @@ class EmployeeValidator
 
         return $errors;
     }
+
+    public function validateMonthlyWorkSummaryData(?string $month, ?string $employeeUuid): array
+    {
+        $errors = [];
+
+        if (!$month) {
+            $errors[] = 'Brak wymaganej daty';
+        } elseif (!preg_match('/^(0[1-9]|1[0-2])\.\d{4}$/', $month)) {
+            $errors[] = 'Niepoprawny format daty. Oczekiwany: mm.YYYY';
+        }
+
+        if (!$employeeUuid) {
+            $errors[] = 'Brak unikalnego identyfikatora pracownika';
+        } elseif (!Uuid::isValid($employeeUuid)) {
+            $errors[] = 'Podany unikalny identyfikator jest niepoprawny';
+        }
+
+        return $errors;
+    }
 }
 
