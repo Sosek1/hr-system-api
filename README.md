@@ -3,6 +3,10 @@
 ```
 docker compose build
 docker compose up
+docker ps
+docker exec -it <id-kontenera-web> bash
+composer install
+exit
 ```
 ## Aplikacja będzie dostępna pod adresem:
 👉 http://localhost:8080
