@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   web:
     build: .
@@ -21,22 +19,22 @@ services:
   mariadb:
     image: mariadb:latest
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE_SYMFONY_MARIADB}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
+      MYSQL_DATABASE: symfony_mariadb
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     ports:
       - "3308:3306"
 
   mysql:
     image: mysql:latest
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE_SYMFONY_MYSQL}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD}
+      MYSQL_DATABASE: symfony_mysql
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     ports:
       - "3306:3306"
 
@@ -48,7 +46,7 @@ services:
     environment:
       PMA_HOSTS: "mariadb,mysql"
       PMA_USER: root
-      PMA_PASSWORD: MYSQL_ROOT_PASSWORD=root_secret
+      PMA_PASSWORD: root_secret
     depends_on:
       - mariadb
       - mysql
