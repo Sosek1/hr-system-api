@@ -40,6 +40,7 @@ class Worktime
     public function setStartTime(\DateTimeInterface $start_time): static
     {
         $this->start_time = $start_time;
+        $this->start_day = \DateTime::createFromFormat('Y-m-d', $start_time->format('Y-m-d'));
 
         return $this;
     }
@@ -59,13 +60,6 @@ class Worktime
     public function getStartDay(): ?\DateTimeInterface
     {
         return $this->start_day;
-    }
-
-    public function setStartDay(\DateTimeInterface $start_day): static
-    {
-        $this->start_day = $start_day;
-
-        return $this;
     }
 
     public function getEmploye(): ?employee
