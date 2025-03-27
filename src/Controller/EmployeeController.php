@@ -18,12 +18,22 @@ final class EmployeeController extends AbstractController
     {
 
         $data = json_decode($request->getContent(), true);
+
+        $requiredFields = ['name', 'surname'];
+        $missingFields = [];
+
+        foreach ($requiredFields as $field) {
+            if (empty($data[$field])) {
+                $missingFields[] = $field;
+            }
+        }
+
+        if (!empty($missingFields)) {
+            return new JsonResponse(['error' => 'Podaj brakujące dane:  ' . implode(', ', $missingFields)], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
         $name = $data['name'] ?? null;
         $surname = $data['surname'] ?? null;
-
-        if (!$name || !$surname) {
-            return new JsonResponse(['error' => 'Name and surname are required.'], JsonResponse::HTTP_BAD_REQUEST);
-        }
 
         $nameErrors = $validator->validateName($name);
         $surnameErrors = $validator->validateSurname($surname);
