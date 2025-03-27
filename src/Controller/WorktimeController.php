@@ -8,7 +8,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Worktime;
-use App\Entity\Employee;
 use App\Service\WorktimeValidator;
 use App\Repository\EmployeeRepository;
 

@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Employee;
 use App\Service\EmployeeValidator;
+use App\Service\WorkSummaryService;
 
 #[Route('/api', name: 'api_')]
 final class EmployeeController extends AbstractController
@@ -32,8 +33,8 @@ final class EmployeeController extends AbstractController
             return new JsonResponse(['error' => 'Podaj brakujące dane:  ' . implode(', ', $missingFields)], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $name = $data['name'] ?? null;
-        $surname = $data['surname'] ?? null;
+        $name = $data['name'];
+        $surname = $data['surname'];
 
         $nameErrors = $validator->validateName($name);
         $surnameErrors = $validator->validateSurname($surname);
@@ -43,7 +44,7 @@ final class EmployeeController extends AbstractController
         }
 
         $employee = new Employee();
-        $employee->setFullname($name . $surname);
+        $employee->setFullname($name . " " . $surname);
 
         $entityManager->persist($employee);
         $entityManager->flush();
@@ -53,5 +54,31 @@ final class EmployeeController extends AbstractController
                 'id' => $employee->getUuid()
             ]
         ]);
+    }
+
+    #[Route('/employee/work-summary/daily', name: 'employee_daily_work_summary', methods: ['POST'])]
+    public function dailyWorkSummary(Request $request, EntityManagerInterface $entityManager, WorkSummaryService $workSummaryService,  EmployeeValidator $validator): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $date = $data['date'] ?? null;
+        $employeeUuid = $data['employee_id'] ?? null;
+
+        $errors = $validator->validateWorkSummaryData($date, $employeeUuid);
+        if (!empty($errors)) {
+            return new JsonResponse(['error' => $errors], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $employee = $entityManager->getRepository(Employee::class)->findOneBy(['uuid' => $employeeUuid]);
+        if (!$employee) {
+            return new JsonResponse(['error' => ['Nie znaleziono pracownika o podanym unikalnym identyfikatorze']], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $summary = $workSummaryService->calculateDailyWorkSummary($employee->getId(), $date);
+
+        if (!$summary || empty($summary)) {
+            return new JsonResponse(['message' => 'Brak danych o czasie pracy dla podanej daty'], JsonResponse::HTTP_OK);
+        }
+
+        return new JsonResponse($summary);
     }
 }

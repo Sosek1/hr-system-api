@@ -4,6 +4,7 @@ namespace App\Service;
 
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Uid\Uuid;
 
 class EmployeeValidator
 {
@@ -34,6 +35,25 @@ class EmployeeValidator
 
         $violations = $this->validator->validate($surname, $constraint);
         return array_map(fn($violation) => $violation->getMessage(), iterator_to_array($violations));
+    }
+
+    public function validateWorkSummaryData(?string $date, ?string $employeeUuid): array
+    {
+        $errors = [];
+
+        if (!$date) {
+            $errors[] = 'Brak wymaganej daty';
+        } elseif (!preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $date)) {
+            $errors[] = 'Niepoprawny format daty. Oczekiwany: dd.mm.YYYY';
+        }
+
+        if (!$employeeUuid) {
+            $errors[] = 'Brak unikalnego identyfikatora pracownika';
+        } elseif (!Uuid::isValid($employeeUuid)) {
+            $errors[] = 'Podany unikalny identyfikator jest niepoprawny';
+        }
+
+        return $errors;
     }
 }
 
